@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+current_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+#source $current_dir/utils.sh
+
 get_tmux_option() {
   local option value default
   option="$1"
@@ -46,12 +49,12 @@ main() {
   set status-right-length "100"
 
   # messages
-  set message-style "fg=${thm_cyan},bg=${thm_gray},align=centre"
-  set message-command-style "fg=${thm_cyan},bg=${thm_gray},align=centre"
+  set message-style "fg=${cyan},bg=${grey},align=centre"
+  set message-command-style "fg=${cyan},bg=${grey},align=centre"
 
   # panes
-  set pane-border-style "fg=${thm_gray}"
-  set pane-active-border-style "fg=${thm_blue}"
+  set pane-border-style "fg=${grey}"
+  set pane-active-border-style "fg=${blue}"
 
   # windows
   setw window-status-activity-style "fg=${thm_fg},bg=${thm_bg},none"
@@ -61,9 +64,9 @@ main() {
   # --------=== Statusline
 
   # NOTE: Checking for the value of @catppuccin_window_tabs_enabled
-  local wt_enabled
+  #local wt_enabled
   wt_enabled="$(get_tmux_option "@catppuccin_window_tabs_enabled" "off")"
-  readonly wt_enabled
+  #readonly wt_enabled
 
   local right_separator
   right_separator="$(get_tmux_option "@catppuccin_right_separator" "")"
@@ -81,44 +84,39 @@ main() {
   host="$(get_tmux_option "@catppuccin_host" "off")"
   readonly host
 
-  local date_time
-  date_time="$(get_tmux_option "@catppuccin_date_time" "off")"
-  readonly date_time
+  IFS=' ' read -r -a plugins <<< $(get_tmux_option "@catppuccin_plugins" "time")
 
   # These variables are the defaults so that the setw and set calls are easier to parse.
   local show_directory
-  readonly show_directory="#[fg=$thm_pink,bg=$thm_bg,nobold,nounderscore,noitalics]$right_separator#[fg=$thm_bg,bg=$thm_pink,nobold,nounderscore,noitalics]  #[fg=$thm_fg,bg=$thm_gray] #{b:pane_current_path} #{?client_prefix,#[fg=$thm_red]"
+  readonly show_directory="#[fg=$pink,bg=$thm_bg,nobold,nounderscore,noitalics]$right_separator#[fg=$thm_bg,bg=$pink,nobold,nounderscore,noitalics]  #[fg=$thm_fg,bg=$grey] #{b:pane_current_path} #{?client_prefix,#[fg=$red]"
 
   local show_window
-  readonly show_window="#[fg=$thm_pink,bg=$thm_bg,nobold,nounderscore,noitalics]$right_separator#[fg=$thm_bg,bg=$thm_pink,nobold,nounderscore,noitalics] #[fg=$thm_fg,bg=$thm_gray] #W #{?client_prefix,#[fg=$thm_red]"
+  readonly show_window="#[fg=$pink,bg=$thm_bg,nobold,nounderscore,noitalics]$right_separator#[fg=$thm_bg,bg=$pink,nobold,nounderscore,noitalics] #[fg=$thm_fg,bg=$grey] #W #{?client_prefix,#[fg=$red]"
 
   local show_session
-  readonly show_session="#[fg=$thm_green]}#[bg=$thm_gray]$right_separator#{?client_prefix,#[bg=$thm_red],#[bg=$thm_green]}#[fg=$thm_bg] #[fg=$thm_fg,bg=$thm_gray] #S "
+  readonly show_session="#[fg=$green]}#[bg=$grey]$right_separator#{?client_prefix,#[bg=$red],#[bg=$green]}#[fg=$thm_bg] #[fg=$thm_fg,bg=$grey] #S "
 
   local show_directory_in_window_status
-  #readonly show_directory_in_window_status="#[fg=$thm_bg,bg=$thm_blue] #I #[fg=$thm_fg,bg=$thm_gray] #{b:pane_current_path} "
-  readonly show_directory_in_window_status="#[fg=$thm_bg,bg=$thm_blue] #I #[fg=$thm_fg,bg=$thm_gray] #W "
+  #readonly show_directory_in_window_status="#[fg=$thm_bg,bg=$blue] #I #[fg=$thm_fg,bg=$grey] #{b:pane_current_path} "
+  readonly show_directory_in_window_status="#[fg=$thm_bg,bg=$blue] #I #[fg=$thm_fg,bg=$grey] #W "
 
   local show_directory_in_window_status_current
-  #readonly show_directory_in_window_status_current="#[fg=$thm_bg,bg=$thm_orange] #I #[fg=$thm_fg,bg=$thm_bg] #{b:pane_current_path} "
-  readonly show_directory_in_window_status_current="#[fg=colour232,bg=$thm_orange] #I #[fg=colour255,bg=colour237] #(echo '#{pane_current_path}' | rev | cut -d'/' -f-2 | rev) "
+  readonly show_directory_in_window_status_current="#[fg=$thm_bg,bg=$orange] #I #[fg=$thm_fg,bg=$thm_bg] #{b:pane_current_path} "
+  #readonly show_directory_in_window_status_current="#[fg=colour232,bg=$orange] #I #[fg=colour255,bg=colour237] #(echo '#{pane_current_path}' | rev | cut -d'/' -f-2 | rev) "
 
   local show_window_in_window_status
-  readonly show_window_in_window_status="#[fg=$thm_fg,bg=$thm_bg] #W #[fg=$thm_bg,bg=$thm_blue] #I#[fg=$thm_blue,bg=$thm_bg]$left_separator#[fg=$thm_fg,bg=$thm_bg,nobold,nounderscore,noitalics] "
+  readonly show_window_in_window_status="#[fg=$thm_fg,bg=$thm_bg] #W #[fg=$thm_bg,bg=$blue] #I#[fg=$blue,bg=$thm_bg]$left_separator#[fg=$thm_fg,bg=$thm_bg,nobold,nounderscore,noitalics] "
 
   local show_window_in_window_status_current
-  readonly show_window_in_window_status_current="#[fg=$thm_fg,bg=$thm_gray] #W #[fg=$thm_bg,bg=$thm_orange] #I#[fg=$thm_orange,bg=$thm_bg]$left_separator#[fg=$thm_fg,bg=$thm_bg,nobold,nounderscore,noitalics] "
- #setw -g window-status-current-format "#[fg=colour232,bg=$thm_orange] #I #[fg=colour255,bg=colour237] #(echo '#{pane_current_path}' | rev | cut -d'/' -f-2 | rev) "
+  readonly show_window_in_window_status_current="#[fg=$thm_fg,bg=$grey] #W #[fg=$thm_bg,bg=$orange] #I#[fg=$orange,bg=$thm_bg]$left_separator#[fg=$thm_fg,bg=$thm_bg,nobold,nounderscore,noitalics] "
+ #setw -g window-status-current-format "#[fg=colour232,bg=$orange] #I #[fg=colour255,bg=colour237] #(echo '#{pane_current_path}' | rev | cut -d'/' -f-2 | rev) "
 
 
   local show_user
-  readonly show_user="#[fg=$thm_blue,bg=$thm_gray]$right_separator#[fg=$thm_bg,bg=$thm_blue] #[fg=$thm_fg,bg=$thm_gray] #(whoami) "
+  readonly show_user="#[fg=$blue,bg=$grey]$right_separator#[fg=$thm_bg,bg=$blue] #[fg=$thm_fg,bg=$grey] #(whoami) "
 
   local show_host
-  readonly show_host="#[fg=$thm_blue,bg=$thm_gray]$right_separator#[fg=$thm_bg,bg=$thm_blue]󰒋 #[fg=$thm_fg,bg=$thm_gray] #H "
-
-  local show_date_time
-  readonly show_date_time="#[fg=$thm_blue,bg=$thm_gray]$right_separator#[fg=$thm_bg,bg=$thm_blue] #[fg=$thm_fg,bg=$thm_gray] $date_time "
+  readonly show_host="#[fg=$blue,bg=$grey]$right_separator#[fg=$thm_bg,bg=$blue]󰒋 #[fg=$thm_fg,bg=$grey] #H "
 
   # Right column 1 by default shows the Window name.
   local right_column1=$show_window
@@ -138,16 +136,42 @@ main() {
     window_status_current_format=$show_window_in_window_status_current
   fi
 
+  for plugin in "${plugins[@]}"; do
+    if [ $plugin = "time" ]; then
+      color="$(get_tmux_option "@catppuccin_time_color" "blue")"
+      icon="$(get_tmux_option "@catppuccin_time_icon" "")"
+      script="$(get_tmux_option "@catppuccin_time" "%a %m/%d %H:%M")"
+
+    elif [ $plugin = "battery" ]; then
+      color="$(get_tmux_option "@catppuccin_battery_color" "pink")"
+      icon="#{battery_icon_status}"
+      script="#{battery_percentage}"
+
+    elif [ $plugin = "sys_info" ]; then
+      color="$(get_tmux_option "@catppuccin_sys_info_color" "orange")"
+      icon="$(get_tmux_option "@catppuccin_sys_info_icon" "")"
+      script="#($current_dir/scripts/tmux_ram_info.sh)|#($current_dir/scripts/cpu_info.sh)"
+
+    elif [ $plugin = "git" ]; then
+      color="$(get_tmux_option "@catppuccin_git_color" "green")"
+      icon="$(get_tmux_option "@catppuccin_git_icon" "")"
+      script="#($current_dir/scripts/git.sh)"
+
+    else
+      continue
+    fi
+
+    right_column2=$right_column2"#{?#{==:$script,},,#[fg=${!color},bg=$grey]$right_separator#[fg=$thm_bg,bg=${!color}]$icon #[fg=$thm_fg,bg=$grey] $script }"
+    #right_column2=$right_column2"#[fg=${!color},bg=$grey]$right_separator#[fg=$thm_bg,bg=${!color}]$icon #[fg=$thm_fg,bg=$grey] $script "
+
+  done
+
   if [[ "${user}" == "on" ]]; then
     right_column2=$right_column2$show_user
   fi
 
   if [[ "${host}" == "on" ]]; then
     right_column2=$right_column2$show_host
-  fi
-
-  if [[ "${date_time}" != "off" ]]; then
-    right_column2=$right_column2$show_date_time
   fi
 
   set status-left ""
@@ -159,8 +183,8 @@ main() {
 
   # --------=== Modes
   #
-  setw clock-mode-colour "${thm_blue}"
-  setw mode-style "fg=${thm_pink} bg=${thm_black4} bold"
+  setw clock-mode-colour "${blue}"
+  setw mode-style "fg=${pink} bg=${black4} bold"
 
   tmux "${tmux_commands[@]}"
 }
